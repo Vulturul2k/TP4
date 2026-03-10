@@ -166,3 +166,55 @@ Yes, when running the container with the same input parameters, all students sho
 
 ### 7 
 When using docker save and docker load, the entire container image is transferred, including its filesystem layers and metadata. This allows another user to run the same image on their machine. However, it does not fully guarantee identical environments, since the container still depends on the host system’s kernel and architecture.
+
+# 4 Using Nix
+
+### 1. Compare the resulting binary with other students. Is it the same?
+Yes, when using Nix and the same system architecture, the resulting binary should be identical across different students’ machines. This happens because Nix builds software in an isolated and deterministic environment, using the same dependencies and inputs. As a result, the compiled binary is the same and produces the same checksum.
+
+### 2. Compare the installation path of the binary with other students. Is it the same?
+Yes, the installation path is the same when using Nix. The binary is stored in the Nix store (/nix/store), where the path includes a hash derived from all build inputs (source code, dependencies, compiler, etc.). If all inputs are identical, the hash and therefore the installation path will also be identical across different machines with the same architecture.
+
+### 3. If you build it multiple times, do you get the same resulting output?
+Yes, when using Nix, building the program multiple times produces the same resulting output. This is because Nix builds are deterministic and reproducible, meaning that if the inputs (source code, dependencies, and configuration) remain the same, the build process will generate the exact same binary and output each time.
+
+### 4. What happens when you run nix shell nixpkgs#hello? How does it differ from nix profile add nixpkgs#hello?
+When you run nix shell nixpkgs#hello, Nix creates a temporary environment where the hello package is available only for the current shell session. Once you exit the shell, the package is no longer available.
+
+In contrast, nix profile add nixpkgs#hello installs the package permanently in the user’s profile, making it available every time you open a new shell until it is manually removed.
+### 5 Briefly explain the role of the Nix store (/nix/store) and why it is immutable.
+The Nix store (/nix/store) is the directory where Nix stores all built packages and their dependencies.
+It is immutable (read-only) to prevent modifications after a package is built. This ensures that packages cannot be accidentally changed, which helps guarantee reproducibility, consistency, and reliability of builds across different systems.
+### 6 What does nix flake lock do, and why is it critical for reproducibility?
+nix flake lock creates or updates the flake.lock file, which records the exact versions (commits) of all dependencies used by the project.
+
+This is critical for reproducibility because it ensures that every user builds the project with the same dependency versions, even if the upstream repositories change later. As a result, the build environment remains consistent across different machines and over time.
+
+### 7 Purity & Sandboxing: Nix builds are executed in a “sandbox”. What would happen if your program tried to download a file or read your system’s /etc/passwd during the build phase in a Nix derivation? Why is this restriction important?
+In a Nix sandboxed build, the program would not be able to download files from the internet or read system files such as /etc/passwd. These operations would fail because the build environment only allows access to explicitly declared inputs.
+
+This restriction is important because it ensures that builds are pure and reproducible. By preventing access to external or system-specific resources, Nix guarantees that the build result depends only on the declared inputs, making the build deterministic and consistent across different machines.
+
+### 8 Suppose an upstream package dependency updates unexpectedly. How does Nix ensure that your project remains reproducible?
+Nix ensures reproducibility by pinning dependencies to specific versions or commits, which are recorded in files such as flake.lock. Even if an upstream package updates, Nix will continue using the exact same dependency versions specified in the lock file. This guarantees that the project can be built in the same way across different machines and at different times.
+
+### 9 You need to share a reproducible development environment with Java and GCC with some students. What would a minimal flake.nix file look like? Should you share the flake.lock file too?
+```c
+{
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+
+  outputs = { self, nixpkgs }:
+  let
+    pkgs = nixpkgs.legacyPackages.x86_64-linux;
+  in {
+    devShells.x86_64-linux.default = pkgs.mkShell {
+      packages = [
+        pkgs.gcc
+        pkgs.jdk
+      ];
+    };
+  };
+}
+```
+Yes, you should also share the flake.lock file, because it pins the exact versions of all dependencies. This ensures that every student will use the same package versions, making the development environment fully reproducible across different machines.
+# 1.3 General questions
