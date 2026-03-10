@@ -59,3 +59,88 @@ No, because the seed is different for each run.
 
 ### 3. Does this version of the application behave differently (at runtime)? Explain why (not)? 
 No but if I run the program fast times. I get the same output.
+
+
+### 2.6 Monte Carlo 𝜋 Approximation
+
+### 2. What happens when you increase the number of iterations?
+
+When the number of iterations n increases, the approximation of π becomes more accurate and gets closer to the real value of π. At the same time, the execution time increases, because the program must generate and test more random points.
+
+### 3
+The implementation is not reproducible at build time. When compiling the program multiple times and computing the SHA-512 checksum of the resulting executable, the checksums are different for each compilation.
+
+This occurs because the program includes the macros __DATE__ and __TIME__, which insert the compilation date and time into the binary. Since these values change every time the program is compiled, the resulting executable is different even if the source code remains identical.
+
+To make the program build-time reproducible, these macros must be removed so that the binary does not depend on the compilation time.
+
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+int main() {
+
+    double x, y;
+    int inside = 0;
+
+    int n = 10000;
+
+    srand(time(NULL));
+
+    for(int i = 0; i < n; i++) {
+        x = (double) rand() / RAND_MAX;
+        y = (double) rand() / RAND_MAX;
+
+        if(x*x + y*y <= 1)
+            inside++;
+    }
+
+    double pi = 4.0 * inside / n;
+
+    printf("Pi approximation: %f\n", pi);
+
+    return 0;
+}
+```
+
+### 4. Run-time reproducibility
+
+The implementation is not reproducible at run time. When executing the program multiple times, the results are different because the random number generator is initialized with srand(time(NULL)). Since the seed depends on the current system time, each execution starts with a different seed and therefore generates a different sequence of random numbers.
+
+To make the program runtime reproducible, the random generator must be initialized with a fixed seed (for example srand(42)). This ensures that the same sequence of pseudo-random numbers is generated each time the program runs, producing identical results.
+
+### 5. Both build-time and run-time reproducible version
+To make the program both build-time and run-time reproducible, all sources of non-determinism must be removed. The macros __DATE__ and __TIME__ were removed to avoid embedding compilation timestamps in the binary. Additionally, the random number generator was initialized with a fixed seed instead of the current time.
+
+By eliminating compilation timestamps and using a constant seed for the pseudo-random generator, the compiled executable remains identical across builds and the program produces exactly the same output each time it is executed.
+```c
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+
+    double x, y;
+    int inside = 0;
+    int n = 10000;
+
+    srand(42);
+
+    for(int i = 0; i < n; i++) {
+
+        x = (double) rand() / RAND_MAX;
+        y = (double) rand() / RAND_MAX;
+
+        if(x*x + y*y <= 1)
+            inside++;
+    }
+
+    double pi = 4.0 * inside / n;
+
+    printf("Pi approximation using %d iterations: %f\n", n, pi);
+
+    return 0;
+}
+```
+
