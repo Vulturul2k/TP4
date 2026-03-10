@@ -217,4 +217,21 @@ Nix ensures reproducibility by pinning dependencies to specific versions or comm
 }
 ```
 Yes, you should also share the flake.lock file, because it pins the exact versions of all dependencies. This ensures that every student will use the same package versions, making the development environment fully reproducible across different machines.
+
 # 1.3 General questions
+
+### 1 What are the benefits of using Nix compared to containerisation tools like Docker or Podman?
+Nix provides stronger reproducibility guarantees than containerisation tools like Docker or Podman. It ensures that builds are deterministic and isolated, meaning that the same inputs always produce the same outputs. Nix also uses content-addressed storage and pinned dependencies, which prevents changes in external packages from affecting the build. In contrast, containers mainly focus on packaging and distributing runtime environments, but they can still be affected by factors such as timestamps, base image updates, or host system differences. Therefore, Nix provides better control over dependencies and build reproducibility.
+
+### 2 Is it safe to run a file or a container image from an unknown source (e.g., another student, internet) on your machine? What isolation mechanisms do these tools provide, and what are their limits?
+It is not safe to run a file or a container image from an unknown source on your machine. These tools provide isolation mechanisms such as sandboxing and restricted access to system resources, but they have limits. For example, containers share the host system’s kernel, which means that vulnerabilities in the kernel could affect the container. Additionally, containers can still access the host system through shared volumes or network interfaces, which could be exploited to compromise the host system. Therefore, it is important to use these tools only with trusted sources and to be aware of their limitations.
+
+### 3 AI & Reproducibility: Given the same prompt and the same model (e.g., Llama-3), is the output always reproducible? Why or why not? Consider factors like “temperature”, “top-p” and hardware non-determinism.
+No, the output is not always reproducible even with the same prompt and the same model. This is because many AI models use sampling parameters such as temperature and top-p, which introduce randomness when generating text. Different random choices can lead to different outputs.
+### 4. If you wanted to share your Monte Carlo 𝜋 estimator with another student who does not have Nix installed, how could you distribute it?
+If the other student does not have Nix installed, could be shared as a compiled binary, the source code, or as a container image (Docker/Podman).
+### 5 Would you be interested to learn how to create PDF documents with the look and feel of UMons using LaTeX or Typst?
+yes
+
+### 6. This practical session was delivered for the second time this year. What did you like or dislike about it? How would you suggest improving it in the future? (For this question only, you may respond in either French or English)
+One issue I encountered during the practical session is that copying commands or code directly from the PDF does not always work correctly. Sometimes formatting or hidden characters cause problems when pasting into the terminal or editor. It would be helpful if the commands and code examples were also provided in a separate text or repository (e.g., GitHub or Moodle files). This would make it easier for students to copy and run the examples without errors.
