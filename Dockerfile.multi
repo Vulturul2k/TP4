@@ -1,0 +1,18 @@
+FROM alpine AS buildtime-stage
+
+RUN apk add --no-cache build-base=0.5-r3
+
+WORKDIR /app
+
+COPY montecarlopi.c .
+
+RUN gcc montecarlopi.c -o montecarlopi
+
+
+FROM alpine AS runtime-stage
+
+COPY --from=buildtime-stage /app/montecarlopi /app/montecarlopi
+
+WORKDIR /app
+
+ENTRYPOINT ["/app/montecarlopi"]
